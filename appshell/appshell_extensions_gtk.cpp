@@ -1,24 +1,24 @@
 /*
  * Copyright (c) 2012 Chhatoi Pritam Baral <pritam@pritambaral.com>. All rights reserved.
- *  
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"), 
- * to deal in the Software without restriction, including without limitation 
- * the rights to use, copy, modify, merge, publish, distribute, sublicense, 
- * and/or sell copies of the Software, and to permit persons to whom the 
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following conditions:
- *  
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *  
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
- * 
+ *
  */
 
 #include "client_app.h"
@@ -40,7 +40,7 @@
 GtkWidget* _menuWidget;
 
 // Supported browsers (order matters):
-//   - google-chorme 
+//   - google-chorme
 //   - chromium-browser - chromium executable name (in ubuntu)
 //   - chromium - other chromium executable name (in arch linux)
 std::string browsers[3] = {"google-chrome", "chromium-browser", "chromium"};
@@ -52,11 +52,11 @@ extern bool isReallyClosing;
 
 int GErrorToErrorCode(GError *gerror) {
     int error = ConvertGnomeErrorCode(gerror);
-    
+
     // uncomment to see errors printed to the console
     //g_warning(gerror->message);
     g_error_free(gerror);
-    
+
     return error;
 }
 
@@ -67,7 +67,7 @@ int32 OpenLiveBrowser(ExtensionString argURL, bool enableRemoteDebugging)
     gchar *cmdline;
     int error = ERR_BROWSER_NOT_INSTALLED;
     GError *gerror = NULL;
-    
+
     if (enableRemoteDebugging) {
         // FIXME Should we mimic windows? user-data-dir=ClientApp::AppGetSupportDirectory()
         remoteDebugging = g_strdup(remoteDebuggingFormat);
@@ -88,12 +88,12 @@ int32 OpenLiveBrowser(ExtensionString argURL, bool enableRemoteDebugging)
         }
 
         g_free(cmdline);
-        
+
         if (error == NO_ERROR) {
             break;
         }
     }
-    
+
     g_free(remoteDebugging);
 
     return error;
@@ -160,7 +160,7 @@ int32 ShowOpenDialog(bool allowMultipleSelection,
                   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                   GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
                   NULL);
-    
+
     if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
     {
         char *filename;
@@ -168,7 +168,7 @@ int32 ShowOpenDialog(bool allowMultipleSelection,
         selectedFiles->SetString(0,filename);
         g_free (filename);
     }
-    
+
     gtk_widget_destroy (dialog);
     return NO_ERROR;
 }
@@ -179,23 +179,23 @@ int32 ShowSaveDialog(ExtensionString title,
                      ExtensionString& newFilePath)
 {
     GtkWidget *openSaveDialog;
-    
+
     openSaveDialog = gtk_file_chooser_dialog_new(title.c_str(),
         NULL,
         GTK_FILE_CHOOSER_ACTION_SAVE,
         GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
         GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
         NULL);
-    
-    gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (openSaveDialog), TRUE);	
+
+    gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (openSaveDialog), TRUE);
     if (!initialDirectory.empty())
     {
         gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER (openSaveDialog), proposedNewFilename.c_str());
-        
+
         ExtensionString folderURI = std::string("file:///") + initialDirectory;
         gtk_file_chooser_set_current_folder_uri (GTK_FILE_CHOOSER (openSaveDialog), folderURI.c_str());
     }
-    
+
     if (gtk_dialog_run (GTK_DIALOG (openSaveDialog)) == GTK_RESPONSE_ACCEPT)
     {
         char* filePath;
@@ -203,7 +203,7 @@ int32 ShowSaveDialog(ExtensionString title,
         newFilePath = filePath;
         g_free (filePath);
     }
-    
+
     gtk_widget_destroy (openSaveDialog);
     return NO_ERROR;
 }
@@ -216,13 +216,13 @@ int32 ReadDir(ExtensionString path, CefRefPtr<CefListValue>& directoryContents)
 
     DIR *dp;
     struct dirent *files;
-    
+
     /*struct dirent
     {
         unsigned char  d_type; #not supported on all systems, faster than stat
         char d_name[]
     }*/
-    
+
 
     if((dp=opendir(path.c_str()))==NULL)
         return ConvertLinuxErrorCode(errno,true);
@@ -308,7 +308,7 @@ int ReadFile(ExtensionString filename, ExtensionString encoding, std::string& co
     GError *gerror = NULL;
     gchar *file_get_contents = NULL;
     gsize len = 0;
-    
+
     if (!g_file_get_contents(filename.c_str(), &file_get_contents, &len, &gerror)) {
         error = GErrorToErrorCode(gerror);
 
@@ -325,7 +325,7 @@ int ReadFile(ExtensionString filename, ExtensionString encoding, std::string& co
 
 int32 WriteFile(ExtensionString filename, std::string contents, ExtensionString encoding)
 {
-    const char *filenameStr = filename.c_str();    
+    const char *filenameStr = filename.c_str();
     int error = NO_ERROR;
     GError *gerror = NULL;
 
@@ -334,7 +334,7 @@ int32 WriteFile(ExtensionString filename, std::string contents, ExtensionString 
     } else if (g_file_test(filenameStr, G_FILE_TEST_EXISTS) && g_access(filenameStr, W_OK) == -1) {
         return ERR_CANT_WRITE;
     }
-    
+
     if (!g_file_set_contents(filenameStr, contents.c_str(), contents.length(), &gerror)) {
         error = GErrorToErrorCode(gerror);
     }
@@ -369,13 +369,13 @@ int _doDeleteFileOrDirectory(GFile *file)
     GFileInfo *fileinfo;
     int error = NO_ERROR;
     GFile *child;
-    
+
     // deletes a file or an empty directory
     error = _deleteFile(file);
     if (error == ERR_NOT_FOUND || error == NO_ERROR) {
         return error;
     }
-    
+
     enumerator = g_file_enumerate_children(file, "standard::*", G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS, NULL, NULL);
 
     if (enumerator == NULL) {
@@ -422,7 +422,7 @@ void MoveFileOrDirectoryToTrash(ExtensionString filename, CefRefPtr<CefBrowser> 
         g_error_free(gerror);
     }
     g_object_unref(file);
-    
+
     response->GetArgumentList()->SetInt(1, error);
     browser->SendProcessMessage(PID_RENDERER, response);
 }
@@ -444,7 +444,7 @@ void BringBrowserWindowToFront(CefRefPtr<CefBrowser> browser)
 {
     if (browser.get()) {
         GtkWindow* hwnd = GTK_WINDOW(browser->GetHost()->GetWindowHandle());
-        if (hwnd) 
+        if (hwnd)
             gtk_window_present(hwnd);
     }
 }
@@ -454,22 +454,22 @@ int ShowFolderInOSWindow(ExtensionString pathname)
     int error = NO_ERROR;
     GError *gerror = NULL;
     gchar *uri = g_strdup_printf("file://%s", pathname.c_str());
-    
+
     if (!gtk_show_uri(NULL, uri, GDK_CURRENT_TIME, &gerror)) {
         error = ConvertGnomeErrorCode(gerror);
         g_warning("%s", gerror->message);
         g_error_free(gerror);
     }
-    
+
     g_free(uri);
 
     return error;
 }
 
 
-int ConvertGnomeErrorCode(GError* gerror, bool isReading) 
+int ConvertGnomeErrorCode(GError* gerror, bool isReading)
 {
-    if (gerror == NULL) 
+    if (gerror == NULL)
         return NO_ERROR;
 
     if (gerror->domain == G_FILE_ERROR) {
@@ -496,7 +496,7 @@ int ConvertGnomeErrorCode(GError* gerror, bool isReading)
            return isReading ? ERR_CANT_READ : ERR_CANT_WRITE;
         default:
             return ERR_UNKNOWN;
-        }  
+        }
     } else if (gerror->domain == G_IO_ERROR) {
         switch(gerror->code) {
         case G_IO_ERROR_NOT_FOUND:
@@ -548,7 +548,7 @@ int32 CopyFile(ExtensionString src, ExtensionString dest)
     g_object_unref(source);
     g_object_unref(destination);
 
-    return error;    
+    return error;
 }
 
 int32 GetPendingFilesToOpen(ExtensionString& files)
@@ -565,7 +565,7 @@ GtkWidget* GetMenuBar(CefRefPtr<CefBrowser> browser)
     for(iter = children; iter != NULL; iter = g_list_next(iter)) {
         widget = (GtkWidget*)iter->data;
 
-        if (GTK_IS_CONTAINER(widget))
+        if (GTK_IS_MENU_BAR(widget))
             return widget;
     }
 
@@ -587,10 +587,11 @@ int32 AddMenu(CefRefPtr<CefBrowser> browser, ExtensionString title, ExtensionStr
     GtkWidget* menuHeader = gtk_menu_item_new_with_label(title.c_str());
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuHeader), menuWidget);
     gtk_menu_shell_append(GTK_MENU_SHELL(menuBar), menuHeader);
+    gtk_widget_show(menuHeader);
 
     // FIXME add lookup for menu widgets
     _menuWidget = menuWidget;
-    
+
     return NO_ERROR;
 }
 
