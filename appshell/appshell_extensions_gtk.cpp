@@ -606,6 +606,7 @@ int32 AddMenuItem(CefRefPtr<CefBrowser> browser, ExtensionString parentCommand, 
     g_signal_connect(entry, "activate", FakeCallback, NULL);
     // FIXME add lookup for menu widgets
     gtk_menu_shell_append(GTK_MENU_SHELL(_menuWidget), entry);
+    gtk_widget_show(entry);
 
     return NO_ERROR;
 }
